@@ -9,9 +9,15 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -19,20 +25,20 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Crear android si falta (SIN borrar tu main.dart)
-        shell: pwsh
+      - name: Crear android si falta
         run: |
           flutter config --no-analytics
           flutter config --enable-android
-          if (-not (Test-Path "android")) {
-            Write-Host "Creando carpeta android..."
+          if [ ! -d "android" ]; then
             flutter create . --platforms=android --org=com.dv.app --project-name=dv
-          }
+          fi
 
       - name: Dependencias
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub get
 
-      - name: Compilar APK WIMC
+      - name: Compilar APK WIMC REAL
         run: flutter build apk --release
 
       - name: Publicar APK WIMC DV
@@ -41,7 +47,8 @@ jobs:
           tag_name: wimc-v${{ github.run_number }}
           name: WIMC DV v${{ github.run_number }} - APK LISTO
           body: |
-            WIMC - Where Is My Car DV - 1 boton para guardar, boton LLEVAME a Google Maps
+            DV WIMC - Where Is My Car
+            1 boton GUARDAR, 1 boton LLEVAME a Google Maps
           files: |
             build/app/outputs/flutter-apk/app-release.apk
         env:
