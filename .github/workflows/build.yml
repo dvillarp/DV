@@ -1,0 +1,47 @@
+name: WIMC DV - APK Android
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Configurar
+        shell: pwsh
+        run: |
+          flutter config --no-analytics
+          flutter config --enable-android
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Compilar APK WIMC
+        run: flutter build apk --release
+
+      - name: Publicar APK WIMC DV
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: wimc-v${{ github.run_number }}
+          name: WIMC DV v${{ github.run_number }} - APK LISTO
+          body: |
+            WIMC - Where Is My Car DV
+            - Un boton para guardar donde aparcaste
+            - Boton LLEVAME te lleva con Google Maps
+            - 100% offline
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
