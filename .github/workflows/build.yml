@@ -3,7 +3,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: windows-latest
@@ -13,44 +12,27 @@ jobs:
         with:
           flutter-version: 'stable'
           cache: true
-
-      - name: Crear proyecto si falta
-        shell: pwsh
+      - name: Configurar Flutter
         run: |
-          if (-not (Test-Path "lib/main.dart")) {
-            Write-Host "Creando proyecto Flutter..."
-            flutter create . --platforms=android,windows --org=com.dv.app --project-name=dv --no-pub --overwrite
-          }
-
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - run: flutter build windows --release
-
-      - name: Crear paquetes
+          flutter config --no-analytics
+          flutter config --enable-windows-desktop
+          flutter --version
+      - name: Instalar dependencias
+        run: flutter pub get
+      - name: Compilar APK
+        run: flutter build apk --release --verbose
+      - name: Compilar Windows EXE
+        run: flutter build windows --release --verbose
+      - name: Crear ZIP Windows
         shell: pwsh
-        run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DV-Windows.zip -Force
-          $bat = @'
-          @echo off
-          echo === Instalador DV ===
-          powershell -Command "Expand-Archive -Path DV-Windows.zip -DestinationPath .\DV-App -Force"
-          start .\DV-App\dv.exe
-          '@
-          Set-Content -Path instalador-DV.bat -Value $bat -Encoding ascii
-
-      - name: Publicar Release
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DV-Windows.zip -Force
+      - name: Publicar Release con links
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
           name: DV v${{ github.run_number }} - LISTO
-          body: |
-            Descargas listas para instalar:
-            - Android: app-release.apk
-            - Windows: DV-Windows.zip
-            - Instalador: instalador-DV.bat
           files: |
             build/app/outputs/flutter-apk/app-release.apk
             DV-Windows.zip
-            instalador-DV.bat
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
