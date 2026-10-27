@@ -19,12 +19,14 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Crear android si falta
+      - name: Crear android si falta (SIN borrar tu main.dart)
         shell: pwsh
         run: |
           flutter config --no-analytics
+          flutter config --enable-android
           if (-not (Test-Path "android")) {
-            flutter create . --platforms=android --org=com.dv.app --project-name=dv --overwrite
+            Write-Host "Creando carpeta android..."
+            flutter create . --platforms=android --org=com.dv.app --project-name=dv
           }
 
       - name: Dependencias
@@ -39,7 +41,7 @@ jobs:
           tag_name: wimc-v${{ github.run_number }}
           name: WIMC DV v${{ github.run_number }} - APK LISTO
           body: |
-            WIMC - Where Is My Car DV
+            WIMC - Where Is My Car DV - 1 boton para guardar, boton LLEVAME a Google Maps
           files: |
             build/app/outputs/flutter-apk/app-release.apk
         env:
