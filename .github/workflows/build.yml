@@ -3,33 +3,44 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
       - name: Crear carpetas Android y Windows si faltan
         shell: pwsh
         run: |
+          flutter config --no-analytics
           flutter config --enable-windows-desktop
           if (-not (Test-Path "android")) {
             flutter create . --platforms=android,windows --org=com.dv.app --project-name=dv --overwrite
           }
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - run: flutter build windows --release
-      - name: ZIP
+      - name: Instalar dependencias
+        run: flutter pub get
+      - name: Compilar APK Android
+        run: flutter build apk --release
+      - name: Compilar EXE Windows
+        run: flutter build windows --release
+      - name: Crear ZIP Windows
         shell: pwsh
         run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DV-Windows.zip -Force
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Publicar Release con links directos
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: DV v${{ github.run_number }}
+          name: DV v${{ github.run_number }} - LISTO PARA INSTALAR
+          body: |
+            Descargas directas listas:
+            - Android: app-release.apk
+            - Windows: DV-Windows.zip (descomprimir y ejecutar dv.exe)
           files: |
             build/app/outputs/flutter-apk/app-release.apk
             DV-Windows.zip
