@@ -12,25 +12,24 @@ jobs:
         with:
           flutter-version: 'stable'
           cache: true
-      - name: Configurar Flutter
+      - name: Crear carpetas Android y Windows si faltan
+        shell: pwsh
         run: |
-          flutter config --no-analytics
           flutter config --enable-windows-desktop
-          flutter --version
-      - name: Instalar dependencias
-        run: flutter pub get
-      - name: Compilar APK
-        run: flutter build apk --release --verbose
-      - name: Compilar Windows EXE
-        run: flutter build windows --release --verbose
-      - name: Crear ZIP Windows
+          if (-not (Test-Path "android")) {
+            flutter create . --platforms=android,windows --org=com.dv.app --project-name=dv --overwrite
+          }
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - run: flutter build windows --release
+      - name: ZIP
         shell: pwsh
         run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DV-Windows.zip -Force
-      - name: Publicar Release con links
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
-          name: DV v${{ github.run_number }} - LISTO
+          name: DV v${{ github.run_number }}
           files: |
             build/app/outputs/flutter-apk/app-release.apk
             DV-Windows.zip
