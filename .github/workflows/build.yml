@@ -1,4 +1,4 @@
-name: DV WIMC V1 - BUILD FINAL
+name: DV WIMC V1 - BUILD FINAL OK
 on:
   push:
     branches: [main]
@@ -18,20 +18,16 @@ jobs:
         with:
           channel: stable
           cache: true
-      - name: RECREAR ANDROID LIMPIO (fix definitivo)
+      - name: RECREAR ANDROID LIMPIO
         run: |
           flutter config --no-analytics
-          echo "Borrando android viejo con SDK 33..."
           rm -rf android
-          echo "Creando android nuevo con SDK 36..."
-          flutter create . --platforms=android --org=com.dv.app --project-name=dv --no-overwrite
-          ls -la android/app/build.gradle
-          cat android/app/build.gradle | grep compileSdk || true
+          flutter create . --platforms=android --org=com.dv.app --project-name=dv
       - name: Build APK
         run: |
           flutter clean
           flutter pub get
-          flutter build apk --release --verbose
+          flutter build apk --release
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

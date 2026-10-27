@@ -1,5 +1,5 @@
 name: wimc_dv
-description: DV WIMC V1 ultra minima
+description: DV WIMC V1
 publish_to: 'none'
 version: 1.0.0+1
 environment:
