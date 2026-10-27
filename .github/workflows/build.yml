@@ -19,11 +19,13 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Configurar
+      - name: Crear android si falta
         shell: pwsh
         run: |
           flutter config --no-analytics
-          flutter config --enable-android
+          if (-not (Test-Path "android")) {
+            flutter create . --platforms=android --org=com.dv.app --project-name=dv --overwrite
+          }
 
       - name: Dependencias
         run: flutter pub get
@@ -38,9 +40,6 @@ jobs:
           name: WIMC DV v${{ github.run_number }} - APK LISTO
           body: |
             WIMC - Where Is My Car DV
-            - Un boton para guardar donde aparcaste
-            - Boton LLEVAME te lleva con Google Maps
-            - 100% offline
           files: |
             build/app/outputs/flutter-apk/app-release.apk
         env:
