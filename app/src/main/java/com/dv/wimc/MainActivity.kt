@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                 onPark = { if (vm.isParking) vm.doPark() else ensureLocation(false) { vm.doPark() } },
                 onPrecise = { ensureLocation(true) { vm.locateUser(false) } },
                 onToggleDetect = { on -> if (on) enableDetection(false) else disableDetection() },
-                onToggleAuto = { on -> if (on) enableDetection(true) else vm.setAutoPark(false) },
+                onToggleAuto = { on -> if (on) enableDetection(true) else vm.updateAutoPark(false) },
             )
         }
         if (savedInstanceState == null) handleIntent(intent)
@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
             }
             DrivingDetection.ACTION_AUTO_ALWAYS -> {
                 NotificationManagerCompat.from(this).cancel(DrivingDetection.NOTIF_ID)
-                vm.setAutoPark(true)
+                vm.updateAutoPark(true)
                 ensureLocation(false) { vm.doPark() }
             }
         }
@@ -120,10 +120,10 @@ class MainActivity : ComponentActivity() {
             vm.showBanner("Sin permiso de actividad física no se puede detectar el coche")
             return
         }
-        vm.setAutoDetect(true)
+        vm.updateAutoDetect(true)
         DrivingDetection.register(this)
         if (wantAutoPark) {
-            vm.setAutoPark(true)
+            vm.updateAutoPark(true)
             if (Build.VERSION.SDK_INT >= 29 && vm.hasFine() &&
                 !DrivingDetection.hasPerm(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             ) {
@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun disableDetection() {
-        vm.setAutoDetect(false)
+        vm.updateAutoDetect(false)
         DrivingDetection.unregister(this)
     }
 }

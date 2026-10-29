@@ -278,7 +278,7 @@ class WimcViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // ---- Ajustes ----
-    fun setAutoDetect(on: Boolean) {
+    fun updateAutoDetect(on: Boolean) {
         store.autoDetect = on
         autoDetect = on
         if (!on) {
@@ -287,7 +287,7 @@ class WimcViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setAutoPark(on: Boolean) {
+    fun updateAutoPark(on: Boolean) {
         store.autoPark = on
         autoPark = on
         if (on) {

@@ -145,6 +145,15 @@ fun WimcApp(
             primary = Blue, secondary = Navy, error = Red, background = BgApp, surface = Color.White,
         )
     ) {
+        val splash = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(1600)
+            splash.value = false
+        }
+        if (splash.value) {
+            Splash()
+            return@MaterialTheme
+        }
         BackHandler(enabled = vm.tab != 0) { vm.tab = 0 }
         Column(Modifier.fillMaxSize().background(BgApp)) {
             Header(vm.parked != null)
@@ -163,6 +172,21 @@ fun WimcApp(
     }
 }
 
+/** Pantalla de inicio: nombre de la app y versión. */
+@Composable
+private fun Splash() {
+    Box(Modifier.fillMaxSize().background(Navy), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Image(painterResource(R.drawable.ic_logo), contentDescription = null, modifier = Modifier.size(120.dp))
+            Spacer(Modifier.height(10.dp))
+            T("WIMC", 30, bold = true, color = Color.White)
+            T("Where Is My Car · DV", 15, color = Color(0xFFCBD5E1))
+            Spacer(Modifier.height(6.dp))
+            T("Versión " + BuildConfig.VERSION_NAME, 14, bold = true, color = Color.White)
+        }
+    }
+}
+
 @Composable
 private fun Header(parked: Boolean) {
     Box(Modifier.fillMaxWidth().background(Navy)) {
@@ -174,7 +198,7 @@ private fun Header(parked: Boolean) {
             Spacer(Modifier.size(8.dp))
             Column(Modifier.weight(1f)) {
                 T("WIMC", 15, bold = true, color = Color.White)
-                T("Where Is My Car · DV", 11, color = Color(0xFFCBD5E1))
+                T("Where Is My Car · DV · v" + BuildConfig.VERSION_NAME, 11, color = Color(0xFFCBD5E1))
             }
             Box(
                 Modifier.background(if (parked) Green else Red, RoundedCornerShape(50))
@@ -602,7 +626,7 @@ private fun Dialogs(vm: WimcViewModel, onPark: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     T("¿Aparcar aquí?", 13)
                     OptionButton("Aparcar ahora") { vm.showStopDialog = false; onPark() }
-                    OptionButton("Auto-aparcar siempre") { vm.showStopDialog = false; vm.setAutoPark(true); onPark() }
+                    OptionButton("Auto-aparcar siempre") { vm.showStopDialog = false; vm.updateAutoPark(true); onPark() }
                     OptionButton("Ignorar") { vm.showStopDialog = false }
                 }
             },
