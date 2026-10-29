@@ -34,6 +34,18 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
 
+      - name: Guardar el registro de compilación en la rama wimc-log
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/logout && cp build.log /tmp/logout/build.log 2>/dev/null || echo "sin log" > /tmp/logout/build.log
+          grep -nE "^e: |error:|What went wrong|Unresolved|FAILED|Execution failed|Could not" build.log | head -80 > /tmp/logout/errores.txt || true
+          cd /tmp/logout
+          git init -q -b wimc-log
+          git config user.name "wimc-bot"; git config user.email "bot@users.noreply.github.com"
+          git add -A && git commit -qm "log run ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" wimc-log
+
       - name: Preparar APK
         shell: bash
         run: cp app/build/outputs/apk/release/app-release.apk WIMC-DV.apk
