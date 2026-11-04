@@ -1,3 +1,5 @@
+> ⚠️ **Repositorio histórico.** El código vivo de WIMC y del resto de apps DV está en el repo privado `dvillarp/claude-brain` (carpeta `wimc/`). No se mantiene aquí; no uses la firma de este repo.
+
 # WIMC · Where Is My Car · DV (Android nativo)
 
 App Android nativa (Kotlin + Jetpack Compose + Google Maps SDK) para guardar dónde has aparcado con un botón y volver a él.
